@@ -5,44 +5,54 @@ $email = $_GET['email'];
 $password = $_GET['psw'];
 $passwordRepeat = $_GET['psw-repeat'];
 
+if (strlen($name) == 0) {
+    echo "Имя обязательно для заполнения";
+    exit;
+}
+
+if(strlen($name) < 2) {
+    echo "Имя должно содержать содержать не менее 2 символов";
+    exit;
+}
+
+if (strlen($email) < 3) {
+    echo "Email слишком короткий";
+    exit;
+}
+
+if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+    echo "Некорректный формат Email";
+    exit;
+}
+
+if (strlen($password) < 6) {
+    echo "Пароль должен содержать не менее 6 символов";
+    exit;
+}
+
+if ($password != $passwordRepeat) {
+    echo "Пароли не совпадают";
+    exit;
+}
+
 $pdo = new PDO('pgsql:host=postgres_db;port=5432;dbname=mydb', 'user', 'pass');
 
-
-if ($name === '') {
-    echo 'поле Name не должно быть пустым';
-}elseif (strlen($name) < 2) {
-    echo 'в поле Name должно быть не менее двух символов';
-}
-
-if ($email === '') {
-    echo 'укажите Email';
-}elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    echo 'Email некорректный';
-}
-
-if ($password === '') {
-    echo 'поле Password не должно быть пустым';
-}elseif (strlen($password) < 6) {
-    echo 'в поле Password должно быть не менее шести символов';
-}
-
-if ($passwordRepeat === '') {
-    echo 'Повторите пароль';
-} elseif ($password !== $passwordRepeat) {
-    echo 'Пароли не совпадают';
-}
-
-$stmt = $pdo->prepare("INSERT INTO users (name, email, password) VALUES (:name, :email, :password) RETURNING id");
+$sql = "INSERT INTO users (name, email, password) VALUES (:name, :email, :password)";
+$stmt = $pdo->prepare($sql);
 $stmt->execute([
     ':name' => $name,
     ':email' => $email,
     ':password' => $password
 ]);
 
+$newUserId = $pdo->lastInsertId();
 
-$newUserId = $stmt->fetchColumn();
+$statement = $pdo->query("SELECT * FROM users WHERE id = $newUserId");
+$data = $statement->fetch();
 
-echo "<h2>Пользователь успешно создан!</h2>";
-echo "<p><strong>ID:</strong> " . $newUserId . "</p>";
-echo "<p><strong>Имя:</strong> " . $name . "</p>";
-echo "<p><strong>Email:</strong> " . $email . "</p>";
+echo "Регистрация успешна!<br>";
+echo "Данные нового пользователя:<br>";
+echo "Имя: " . $data['name'] . "<br>";
+echo "Email: " . $data['email'] . "<br>";
+
+
