@@ -7,8 +7,8 @@ $passwordRepeat = '';
 
 $errors = [];
 
-if (isset($_GET['name'])) {
-    $name = $_GET['name'];
+if (isset($_POST['name'])) {
+    $name = $_POST['name'];
     if (strlen($name) == 0) {
         $errors ['name'] = "Имя обязательно для заполнения";
     }elseif(strlen($name) < 2) {
@@ -18,8 +18,8 @@ if (isset($_GET['name'])) {
     $errors['name'] = "Поле name отсутствует";
 }
 
-if (isset($_GET['email'])) {
-    $email = $_GET['email'];
+if (isset($_POST['email'])) {
+    $email = $_POST['email'];
     if (strlen($email) < 3) {
         $errors ['email'] = "Email слишком короткий";
     }elseif (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
@@ -29,8 +29,8 @@ if (isset($_GET['email'])) {
     $errors['email'] = "Поле email отсутствует";
 }
 
-if (isset($_GET['psw'])) {
-    $password = $_GET['psw'];
+if (isset($_POST['psw'])) {
+    $password = $_POST['psw'];
 
     if (strlen($password) < 6) {
         $errors ['psw'] = "Пароль должен содержать не менее 6 символов";
@@ -39,8 +39,8 @@ if (isset($_GET['psw'])) {
     $errors['psw'] = "Поле password отсутствует";
 }
 
-if (isset($_GET['psw-repeat'])) {
-    $passwordRepeat = $_GET['psw-repeat'];
+if (isset($_POST['psw-repeat'])) {
+    $passwordRepeat = $_POST['psw-repeat'];
     if ($password !== $passwordRepeat) {
         $errors ['psw-repeat'] = "Пароли не совпадают";
     }
@@ -52,13 +52,8 @@ if (isset($_GET['psw-repeat'])) {
 if (empty($errors)) {
     $pdo = new PDO('pgsql:host=postgres_db;port=5432;dbname=mydb', 'user', 'pass');
 
-    $sql = "INSERT INTO users (name, email, password) VALUES (:name, :email, :password)";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([
-        ':name' => $name,
-        ':email' => $email,
-        ':password' => $password
-    ]);
+    $stmt = $pdo->prepare("INSERT INTO users (name, email, password) VALUES (:name, :email, :password)");
+    $stmt->execute(['name' => $name, 'email' => $email, 'password' => $password]);
 
     $newUserId = $pdo->lastInsertId();
 
