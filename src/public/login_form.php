@@ -5,9 +5,14 @@
         <hr>
 
         <label for="email"><b>Email</b></label>
+        <?php if (isset($errors['email'])): ?>
+            <label style="color: red"><?php echo $errors['email'] ?? ''; ?></label>
+        <?php endif;?>
         <input type="text" placeholder="Enter Email" name="email" id="email" required>
-
         <label for="psw"><b>Password</b></label>
+        <?php if (isset($errors['psw'])): ?>
+            <label><?php echo $errors['psw'] ?? '';?></label>
+        <?php endif;?>
         <input type="password" placeholder="Enter Password" name="psw" id="psw" required>
         <hr>
 
