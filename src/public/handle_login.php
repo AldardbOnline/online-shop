@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 
 function validateLogin(array $data): array
 {
@@ -38,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $passwordDb = $user['password'];
             if (password_verify($password, $passwordDb)) {
-                setcookie('user_id', $user['id'], time() + 3600 * 24 * 7, '/');
+                $_SESSION['user_id'] = $user['id'];
                 header('Location: catalog.php');
                 exit;
             } else {
